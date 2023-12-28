@@ -4,12 +4,10 @@ from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel, conlist
 
-
-
 app = FastAPI(title="Predicting Wine Class with batching")
 
 # Open classifier in global scope
-with open("models/wine-95.pkl", "rb") as file:
+with open("models/wine-95-fixed.pkl", "rb") as file:
     clf = pickle.load(file)
 
 
@@ -24,4 +22,19 @@ def predict(wine: Wine):
     pred = clf.predict(np_batches).tolist()
     return {"Prediction": pred}
 
+
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
 # my comment is right here !
+def test_pipeline_and_scaler():
+
+    # Check if clf is an instance of sklearn.pipeline.Pipeline 
+    isPipeline = isinstance(clf, Pipeline)
+    assert isPipeline
+    
+    if isPipeline:
+        # Check if first step of pipeline is an instance of 
+        # sklearn.preprocessing.StandardScaler
+        firstStep = [v for v in clf.named_steps.values()][0]
+        assert isinstance(firstStep, StandardScaler)
